@@ -1,0 +1,687 @@
+<!DOCTYPE html>
+<html lang="sl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Vitezov matematični labirint</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: Arial, sans-serif;
+      background: #f4efe1;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      padding: 24px;
+    }
+
+    .app {
+      width: min(900px, 100%);
+      text-align: center;
+    }
+
+    h1 {
+      margin-bottom: 8px;
+    }
+
+    .instructions {
+      margin: 0 auto 18px;
+      max-width: 700px;
+      font-size: 1.05rem;
+      line-height: 1.5;
+    }
+
+    #message {
+      min-height: 38px;
+      font-size: 1.15rem;
+      font-weight: bold;
+      margin-bottom: 12px;
+    }
+
+    #maze {
+      display: grid;
+      margin: 0 auto;
+      width: fit-content;
+      border: 5px solid #473d32;
+      background: #fff;
+      touch-action: none;
+    }
+
+    .cell {
+      width: 56px;
+      height: 56px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 36px;
+      user-select: none;
+    }
+
+    .wall {
+      background: #4b5563;
+      box-shadow: inset 0 0 0 1px #374151;
+    }
+
+    .path {
+      background: #fffaf0;
+    }
+
+    .goal {
+      background: #fff3b0;
+    }
+
+    .character {
+      display: inline-block;
+      line-height: 1;
+    }
+
+    .knight {
+      font-size: 38px;
+    }
+
+    .dragon {
+      font-size: 38px;
+    }
+
+    .castle {
+      font-size: 40px;
+    }
+
+    .controls {
+      margin: 22px auto 0;
+      width: 210px;
+    }
+
+    .controls-row {
+      display: flex;
+      justify-content: center;
+      gap: 8px;
+      margin: 8px 0;
+    }
+
+    button {
+      font: inherit;
+    }
+
+    .move-button,
+    .attack-button {
+      border: 2px solid #333;
+      border-radius: 12px;
+      background: white;
+      cursor: pointer;
+      font-weight: bold;
+      min-width: 60px;
+      min-height: 52px;
+      font-size: 24px;
+    }
+
+    .move-button:hover,
+    .attack-button:hover {
+      background: #eee;
+    }
+
+    .attack-button {
+      width: 100%;
+      font-size: 17px;
+      padding: 10px;
+    }
+
+    #mathOverlay {
+      position: fixed;
+      inset: 0;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      background: rgba(0, 0, 0, 0.55);
+      padding: 20px;
+      z-index: 10;
+    }
+
+    #mathOverlay.visible {
+      display: flex;
+    }
+
+    .math-card {
+      width: min(420px, 100%);
+      padding: 30px;
+      border-radius: 20px;
+      background: white;
+      text-align: center;
+      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.25);
+    }
+
+    .math-card .dragon-big {
+      font-size: 70px;
+    }
+
+    #problem {
+      font-size: 2.5rem;
+      font-weight: bold;
+      margin: 15px 0;
+    }
+
+    #answer {
+      width: 140px;
+      padding: 10px;
+      font-size: 1.7rem;
+      text-align: center;
+      border: 2px solid #555;
+      border-radius: 10px;
+    }
+
+    #submitAnswer {
+      display: block;
+      margin: 18px auto 0;
+      padding: 12px 24px;
+      border: 0;
+      border-radius: 10px;
+      background: #2563eb;
+      color: white;
+      font-size: 1.1rem;
+      cursor: pointer;
+    }
+
+    #feedback {
+      min-height: 28px;
+      margin-top: 14px;
+      font-weight: bold;
+      font-size: 1.1rem;
+    }
+
+    #restart {
+      margin-top: 18px;
+      padding: 10px 18px;
+      border: 2px solid #333;
+      border-radius: 10px;
+      background: white;
+      cursor: pointer;
+    }
+
+    @media (max-width: 650px) {
+      .cell {
+        width: 38px;
+        height: 38px;
+        font-size: 27px;
+      }
+
+      .knight,
+      .dragon {
+        font-size: 28px;
+      }
+
+      .castle {
+        font-size: 30px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+<div class="app">
+  <h1>⚔️ Vitezov matematični labirint 🏰</h1>
+
+  <p class="instructions">
+    Pomagaj vitezu priti do gradu.
+    Premikaj ga s <strong>puščicami</strong> ali tipkami
+    <strong>W, A, S, D</strong>.
+    Ko stoji ob zmaju, pritisni <strong>preslednico</strong>.
+    Reši račun in premagaj zmaja!
+  </p>
+
+  <div id="message">Poišči pot do gradu.</div>
+
+  <div id="maze"></div>
+
+  <div class="controls">
+    <div class="controls-row">
+      <button class="move-button" data-direction="up">↑</button>
+    </div>
+
+    <div class="controls-row">
+      <button class="move-button" data-direction="left">←</button>
+      <button class="move-button" data-direction="down">↓</button>
+      <button class="move-button" data-direction="right">→</button>
+    </div>
+
+    <button class="attack-button" id="attackButton">
+      ⚔️ Napadi zmaja
+    </button>
+  </div>
+
+  <button id="restart">Začni znova</button>
+</div>
+
+
+<div id="mathOverlay">
+  <div class="math-card">
+    <div class="dragon-big">🐉</div>
+
+    <p>Zmaj te izziva! Reši račun:</p>
+
+    <div id="problem"></div>
+
+    <input
+      id="answer"
+      type="number"
+      inputmode="numeric"
+      autocomplete="off"
+      aria-label="Vpiši odgovor"
+    />
+
+    <button id="submitAnswer">Preveri odgovor</button>
+
+    <div id="feedback"></div>
+  </div>
+</div>
+
+
+<script>
+  /*
+    0 = pot
+    1 = zid
+
+    Labirint je namenoma zapisan ročno,
+    da ga lahko pozneje preprosto spreminjamo.
+  */
+
+  const mazeMap = [
+    [1,1,1,1,1,1,1,1,1,1,1,1],
+    [1,0,0,0,1,0,0,0,0,0,0,1],
+    [1,1,1,0,1,0,1,1,1,1,0,1],
+    [1,0,0,0,0,0,1,0,0,0,0,1],
+    [1,0,1,1,1,1,1,0,1,1,0,1],
+    [1,0,0,0,0,0,0,0,1,0,0,1],
+    [1,1,1,1,1,1,0,1,1,0,1,1],
+    [1,0,0,0,0,0,0,0,0,0,0,1],
+    [1,0,1,1,1,1,1,1,1,1,0,1],
+    [1,0,0,0,0,0,0,0,0,0,0,1],
+    [1,1,1,1,1,1,1,1,1,1,1,1]
+  ];
+
+  const startPosition = { row: 1, col: 1 };
+  const castlePosition = { row: 9, col: 10 };
+
+  // Zmaji so postavljeni na poti do gradu.
+  const originalDragons = [
+    { row: 1, col: 3 },
+    { row: 3, col: 7 },
+    { row: 7, col: 6 },
+    { row: 9, col: 8 }
+  ];
+
+  let player = { ...startPosition };
+
+  let dragons = originalDragons.map((dragon, index) => ({
+    ...dragon,
+    id: index
+  }));
+
+  let activeDragon = null;
+  let correctAnswer = null;
+  let gameWon = false;
+
+  const mazeElement = document.getElementById("maze");
+  const messageElement = document.getElementById("message");
+
+  const overlay = document.getElementById("mathOverlay");
+  const problemElement = document.getElementById("problem");
+  const answerInput = document.getElementById("answer");
+  const feedbackElement = document.getElementById("feedback");
+
+  mazeElement.style.gridTemplateColumns =
+    `repeat(${mazeMap[0].length}, auto)`;
+
+
+  function getDragonAt(row, col) {
+    return dragons.find(
+      dragon => dragon.row === row && dragon.col === col
+    );
+  }
+
+
+  function drawMaze() {
+    mazeElement.innerHTML = "";
+
+    for (let row = 0; row < mazeMap.length; row++) {
+      for (let col = 0; col < mazeMap[row].length; col++) {
+
+        const cell = document.createElement("div");
+        cell.classList.add("cell");
+
+        if (mazeMap[row][col] === 1) {
+          cell.classList.add("wall");
+        } else {
+          cell.classList.add("path");
+        }
+
+        // Grad
+        if (
+          row === castlePosition.row &&
+          col === castlePosition.col
+        ) {
+          cell.classList.add("goal");
+
+          const castle = document.createElement("span");
+          castle.className = "character castle";
+          castle.textContent = "🏰";
+          cell.appendChild(castle);
+        }
+
+        // Zmaj
+        const dragon = getDragonAt(row, col);
+
+        if (dragon) {
+          const dragonIcon = document.createElement("span");
+          dragonIcon.className = "character dragon";
+          dragonIcon.textContent = "🐉";
+          cell.appendChild(dragonIcon);
+        }
+
+        // Vitez
+        if (
+          row === player.row &&
+          col === player.col
+        ) {
+          const knight = document.createElement("span");
+          knight.className = "character knight";
+          knight.textContent = "🛡️";
+          cell.appendChild(knight);
+        }
+
+        mazeElement.appendChild(cell);
+      }
+    }
+  }
+
+
+  function movePlayer(direction) {
+    if (gameWon || activeDragon) return;
+
+    let nextRow = player.row;
+    let nextCol = player.col;
+
+    if (direction === "up") nextRow--;
+    if (direction === "down") nextRow++;
+    if (direction === "left") nextCol--;
+    if (direction === "right") nextCol++;
+
+    // Zid
+    if (mazeMap[nextRow]?.[nextCol] !== 0) {
+      messageElement.textContent = "🧱 Tukaj je zid.";
+      return;
+    }
+
+    // Zmaj blokira prehod
+    const dragon = getDragonAt(nextRow, nextCol);
+
+    if (dragon) {
+      messageElement.textContent =
+        "🐉 Zmaj ti zapira pot! Pritisni preslednico.";
+      return;
+    }
+
+    player.row = nextRow;
+    player.col = nextCol;
+
+    drawMaze();
+
+    if (
+      player.row === castlePosition.row &&
+      player.col === castlePosition.col
+    ) {
+      winGame();
+    } else {
+      checkNearbyDragon();
+    }
+  }
+
+
+  function findNearbyDragon() {
+    const directions = [
+      [-1, 0],
+      [1, 0],
+      [0, -1],
+      [0, 1]
+    ];
+
+    for (const [dr, dc] of directions) {
+      const dragon = getDragonAt(
+        player.row + dr,
+        player.col + dc
+      );
+
+      if (dragon) return dragon;
+    }
+
+    return null;
+  }
+
+
+  function checkNearbyDragon() {
+    const dragon = findNearbyDragon();
+
+    if (dragon) {
+      messageElement.textContent =
+        "🐉 Zmaj je blizu! Pritisni preslednico in ga špikni z mečem.";
+    } else {
+      messageElement.textContent =
+        "Poišči pot do gradu.";
+    }
+  }
+
+
+  function attackDragon() {
+    if (gameWon || activeDragon) return;
+
+    const dragon = findNearbyDragon();
+
+    if (!dragon) {
+      messageElement.textContent =
+        "⚔️ V bližini ni nobenega zmaja.";
+      return;
+    }
+
+    activeDragon = dragon;
+
+    createMathProblem();
+
+    overlay.classList.add("visible");
+
+    setTimeout(() => {
+      answerInput.focus();
+    }, 50);
+  }
+
+
+  /*
+    Ustvari seštevanje ali odštevanje.
+    Vsi rezultati so od 0 do 20.
+  */
+
+  function createMathProblem() {
+    const operation =
+      Math.random() < 0.5 ? "+" : "−";
+
+    let a;
+    let b;
+
+    if (operation === "+") {
+
+      a = randomNumber(1, 15);
+      b = randomNumber(1, 20 - a);
+
+      correctAnswer = a + b;
+
+    } else {
+
+      a = randomNumber(2, 20);
+      b = randomNumber(1, a);
+
+      correctAnswer = a - b;
+    }
+
+    problemElement.textContent =
+      `${a} ${operation} ${b} = ?`;
+
+    answerInput.value = "";
+    feedbackElement.textContent = "";
+  }
+
+
+  function randomNumber(min, max) {
+    return Math.floor(
+      Math.random() * (max - min + 1)
+    ) + min;
+  }
+
+
+  function checkAnswer() {
+    if (!activeDragon) return;
+
+    const answer = Number(answerInput.value);
+
+    if (answerInput.value.trim() === "") {
+      feedbackElement.textContent =
+        "Najprej vpiši odgovor.";
+      return;
+    }
+
+    if (answer === correctAnswer) {
+
+      feedbackElement.textContent =
+        "✅ Pravilno! Premagal si zmaja!";
+
+      const defeatedDragonId = activeDragon.id;
+
+      setTimeout(() => {
+
+        dragons = dragons.filter(
+          dragon => dragon.id !== defeatedDragonId
+        );
+
+        activeDragon = null;
+
+        overlay.classList.remove("visible");
+
+        messageElement.textContent =
+          "⚔️ Zmaj je premagan. Nadaljuj proti gradu!";
+
+        drawMaze();
+
+      }, 700);
+
+    } else {
+
+      feedbackElement.textContent =
+        "❌ Poskusi še enkrat.";
+
+      answerInput.select();
+    }
+  }
+
+
+  function winGame() {
+    gameWon = true;
+
+    messageElement.textContent =
+      "🏰 Bravo! Vitez je našel grad! 🎉";
+  }
+
+
+  function restartGame() {
+    player = { ...startPosition };
+
+    dragons = originalDragons.map((dragon, index) => ({
+      ...dragon,
+      id: index
+    }));
+
+    activeDragon = null;
+    gameWon = false;
+
+    overlay.classList.remove("visible");
+
+    messageElement.textContent =
+      "Poišči pot do gradu.";
+
+    drawMaze();
+  }
+
+
+  document.addEventListener("keydown", event => {
+
+    if (activeDragon) {
+
+      if (event.key === "Enter") {
+        checkAnswer();
+      }
+
+      return;
+    }
+
+    const key = event.key.toLowerCase();
+
+    if (key === "arrowup" || key === "w") {
+      event.preventDefault();
+      movePlayer("up");
+    }
+
+    if (key === "arrowdown" || key === "s") {
+      event.preventDefault();
+      movePlayer("down");
+    }
+
+    if (key === "arrowleft" || key === "a") {
+      event.preventDefault();
+      movePlayer("left");
+    }
+
+    if (key === "arrowright" || key === "d") {
+      event.preventDefault();
+      movePlayer("right");
+    }
+
+    if (event.code === "Space") {
+      event.preventDefault();
+      attackDragon();
+    }
+  });
+
+
+  document.querySelectorAll(".move-button")
+    .forEach(button => {
+
+      button.addEventListener("click", () => {
+        movePlayer(button.dataset.direction);
+      });
+
+    });
+
+
+  document
+    .getElementById("attackButton")
+    .addEventListener("click", attackDragon);
+
+
+  document
+    .getElementById("submitAnswer")
+    .addEventListener("click", checkAnswer);
+
+
+  document
+    .getElementById("restart")
+    .addEventListener("click", restartGame);
+
+
+  drawMaze();
+</script>
+
+</body>
+</html>
