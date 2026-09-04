@@ -1,541 +1,1163 @@
 <!DOCTYPE html>
 <html lang="sl">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Vitezov matematični labirint</title>
+<head>
+
+<meta charset="UTF-8">
+
+<meta
+  name="viewport"
+  content="width=device-width, initial-scale=1.0"
+>
+
+<title>
+  Vitezov matematični labirint
+</title>
+
 
 <style>
+
+/* =====================================================
+   OSNOVNO
+===================================================== */
 
 * {
   box-sizing: border-box;
 }
 
 body {
+
   margin: 0;
+
   min-height: 100vh;
-  font-family: Arial, sans-serif;
-  background: #f4efe1;
-  text-align: center;
+
   padding: 20px;
+
+  font-family:
+    Arial,
+    Helvetica,
+    sans-serif;
+
+  text-align: center;
+
+  background: #f4efe1;
+
+  color: #222;
 }
+
 
 h1 {
-  margin-bottom: 8px;
+
+  margin:
+    0 0 8px;
+
+  font-size:
+    2rem;
 }
+
 
 .instructions {
-  max-width: 820px;
-  margin: 0 auto 14px;
-  line-height: 1.5;
-  font-size: 1.05rem;
+
+  max-width:
+    850px;
+
+  margin:
+    0 auto 12px;
+
+  font-size:
+    1.05rem;
+
+  line-height:
+    1.5;
 }
+
 
 .arrow-help {
-  font-size: 1.8rem;
-  font-weight: bold;
-  margin: 8px 0;
+
+  margin:
+    8px 0;
+
+  font-size:
+    1.9rem;
+
+  font-weight:
+    bold;
 }
+
 
 #message {
-  min-height: 38px;
-  font-size: 1.15rem;
-  font-weight: bold;
-  margin-bottom: 8px;
+
+  min-height:
+    36px;
+
+  margin:
+    7px 0;
+
+  font-size:
+    1.15rem;
+
+  font-weight:
+    bold;
 }
+
+
+#dragonCounter {
+
+  min-height:
+    28px;
+
+  margin:
+    5px 0;
+
+  color:
+    #244d73;
+
+  font-weight:
+    bold;
+
+  font-size:
+    1.05rem;
+}
+
 
 #fireStatus {
-  min-height: 28px;
-  font-weight: bold;
-  margin-bottom: 10px;
+
+  min-height:
+    28px;
+
+  margin-bottom:
+    10px;
+
+  font-weight:
+    bold;
 }
 
 
-/* =========================
+
+/* =====================================================
    LABIRINT
-========================= */
+===================================================== */
 
 #maze {
+
   display: grid;
-  width: fit-content;
-  margin: 0 auto;
-  border: 5px solid #473d32;
-  background: white;
+
+  width:
+    fit-content;
+
+  margin:
+    0 auto;
+
+  border:
+    5px solid #463d34;
+
+  background:
+    white;
+
+  box-shadow:
+    0 6px 18px rgba(0,0,0,0.17);
 }
+
 
 .cell {
-  width: 34px;
-  height: 34px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  position: relative;
-  user-select: none;
+
+  width:
+    34px;
+
+  height:
+    34px;
+
+  position:
+    relative;
+
+  display:
+    flex;
+
+  align-items:
+    center;
+
+  justify-content:
+    center;
+
+  user-select:
+    none;
 }
+
 
 .wall {
-  background: #48515c;
+
+  background:
+    #48535e;
 }
+
 
 .path {
-  background: #fffaf0;
+
+  background:
+    #fffaf0;
 }
+
 
 .goal {
-  background: #ffeaa7;
+
+  background:
+    #ffe9a8;
 }
+
+
+
+/* =====================================================
+   VITEZ V LABIRINTU
+===================================================== */
 
 .knight {
-  font-size: 24px;
-  z-index: 5;
+
+  position:
+    relative;
+
+  z-index:
+    7;
+
+  font-size:
+    24px;
+
+  filter:
+    drop-shadow(
+      0 2px 1px rgba(0,0,0,0.25)
+    );
 }
+
+
+
+/* =====================================================
+   GRAD V LABIRINTU
+===================================================== */
 
 .castle {
-  font-size: 27px;
+
+  position:
+    relative;
+
+  z-index:
+    4;
+
+  font-size:
+    27px;
 }
+
+
+
+/* =====================================================
+   ZMAJI
+===================================================== */
+
+.dragon {
+
+  position:
+    relative;
+
+  z-index:
+    6;
+
+  filter:
+    drop-shadow(
+      0 2px 2px rgba(0,0,0,0.25)
+    );
+}
+
 
 .dragon-small {
-  font-size: 18px;
+
+  font-size:
+    19px;
 }
+
 
 .dragon-medium {
-  font-size: 23px;
+
+  font-size:
+    24px;
 }
+
 
 .dragon-large {
-  font-size: 29px;
+
+  font-size:
+    30px;
 }
 
 
-/* =========================
+
+/* =====================================================
    OGENJ
-========================= */
+===================================================== */
 
 .fire {
-  position: absolute;
-  z-index: 3;
+
+  position:
+    absolute;
+
+  z-index:
+    3;
 }
+
 
 .fire-on {
-  font-size: 26px;
-  animation: burn 0.45s infinite alternate;
+
+  font-size:
+    26px;
+
+  animation:
+    burn 0.45s
+    infinite alternate;
 }
+
 
 .fire-off {
-  font-size: 17px;
-  opacity: 0.25;
+
+  font-size:
+    17px;
+
+  opacity:
+    0.25;
 }
 
+
 @keyframes burn {
+
   from {
-    transform: scale(0.88) translateY(2px);
+
+    transform:
+      scale(0.87)
+      translateY(2px);
   }
 
   to {
-    transform: scale(1.12) translateY(-2px);
+
+    transform:
+      scale(1.12)
+      translateY(-2px);
   }
 }
 
 
-/* =========================
-   GUMBI
-========================= */
+
+/* =====================================================
+   GUMBI ZA PREMIKANJE
+===================================================== */
 
 .controls {
-  margin: 18px auto 0;
-  width: 230px;
+
+  width:
+    230px;
+
+  margin:
+    18px auto 0;
 }
+
 
 .controls-row {
-  display: flex;
-  justify-content: center;
-  gap: 8px;
-  margin: 7px 0;
+
+  display:
+    flex;
+
+  justify-content:
+    center;
+
+  gap:
+    8px;
+
+  margin:
+    7px 0;
 }
+
 
 button {
-  font: inherit;
-  cursor: pointer;
+
+  font:
+    inherit;
+
+  cursor:
+    pointer;
 }
+
 
 .move-button {
-  min-width: 62px;
-  min-height: 52px;
-  font-size: 27px;
-  font-weight: bold;
-  border: 2px solid #333;
-  border-radius: 12px;
-  background: white;
-}
 
-.move-button:hover {
-  background: #e8eef7;
-}
+  min-width:
+    64px;
 
-.attack-button {
-  width: 100%;
-  margin-top: 8px;
-  padding: 13px;
-  font-size: 18px;
-  font-weight: bold;
-  border: 2px solid #333;
-  border-radius: 12px;
-  background: white;
-}
+  min-height:
+    54px;
 
-.attack-button:hover {
-  background: #e8eef7;
-}
+  border:
+    2px solid #333;
 
-#restart {
-  margin-top: 14px;
-  padding: 10px 18px;
-  border: 2px solid #333;
-  border-radius: 10px;
-  background: white;
-  font-weight: bold;
-}
-
-
-/* =========================
-   RAČUN
-========================= */
-
-#mathOverlay {
-  position: fixed;
-  inset: 0;
-  display: none;
-  align-items: center;
-  justify-content: center;
-  background: rgba(0,0,0,0.58);
-  z-index: 20;
-  padding: 20px;
-}
-
-#mathOverlay.visible {
-  display: flex;
-}
-
-.math-card {
-  width: min(430px, 92%);
-  padding: 30px;
-  background: white;
-  border-radius: 20px;
-  box-shadow: 0 12px 40px rgba(0,0,0,0.3);
-}
-
-#dragonPreview {
-  margin-bottom: 6px;
-}
-
-#progress {
-  font-weight: bold;
-  margin-bottom: 8px;
-}
-
-#problem {
-  font-size: 2.6rem;
-  font-weight: bold;
-  margin: 16px 0;
-}
-
-#answer {
-  width: 145px;
-  padding: 10px;
-  text-align: center;
-  font-size: 1.8rem;
-  border: 2px solid #555;
-  border-radius: 10px;
-}
-
-#submitAnswer {
-  display: block;
-  margin: 16px auto 0;
-  padding: 12px 24px;
-  border: none;
-  border-radius: 10px;
-  background: #2563eb;
-  color: white;
-  font-size: 1.05rem;
-}
-
-#feedback {
-  min-height: 28px;
-  margin-top: 12px;
-  font-weight: bold;
-  font-size: 1.05rem;
-}
-
-
-/* =========================
-   KONČNI ZASLON
-========================= */
-
-#victoryScreen {
-  width: min(950px, 96%);
-  min-height: 650px;
-  margin: 20px auto;
-  padding: 25px 20px 35px;
+  border-radius:
+    12px;
 
   background:
-    linear-gradient(
-      #9edcff 0%,
-      #eaf8ff 60%,
-      #9bd27d 60%,
-      #66ad4d 100%
-    );
+    white;
 
-  border: 6px solid #315b8a;
-  border-radius: 30px;
+  font-size:
+    29px;
+
+  font-weight:
+    bold;
+}
+
+
+.move-button:hover {
+
+  background:
+    #e8eef7;
+}
+
+
+#restart {
+
+  margin-top:
+    16px;
+
+  padding:
+    11px 20px;
+
+  border:
+    2px solid #333;
+
+  border-radius:
+    11px;
+
+  background:
+    white;
+
+  font-weight:
+    bold;
+}
+
+
+
+/* =====================================================
+   RAČUN - OKNO
+===================================================== */
+
+#mathOverlay {
+
+  position:
+    fixed;
+
+  inset:
+    0;
+
+  z-index:
+    50;
+
+  display:
+    none;
+
+  align-items:
+    center;
+
+  justify-content:
+    center;
+
+  padding:
+    20px;
+
+  background:
+    rgba(0,0,0,0.62);
+}
+
+
+#mathOverlay.visible {
+
+  display:
+    flex;
+}
+
+
+.math-card {
+
+  width:
+    min(440px, 94%);
+
+  padding:
+    28px;
+
+  border:
+    4px solid #315b8a;
+
+  border-radius:
+    22px;
+
+  background:
+    white;
+
+  box-shadow:
+    0 14px 45px rgba(0,0,0,0.35);
+}
+
+
+.math-card h2 {
+
+  margin:
+    4px 0 12px;
+
+  font-size:
+    1.7rem;
+}
+
+
+#dragonPreview {
+
+  min-height:
+    76px;
+
+  display:
+    flex;
+
+  align-items:
+    center;
+
+  justify-content:
+    center;
+}
+
+
+#progress {
+
+  min-height:
+    26px;
+
+  margin:
+    5px 0;
+
+  font-weight:
+    bold;
+
+  color:
+    #315b8a;
+}
+
+
+#problem {
+
+  margin:
+    16px 0;
+
+  font-size:
+    3rem;
+
+  font-weight:
+    900;
+}
+
+
+#answer {
+
+  width:
+    150px;
+
+  padding:
+    10px;
+
+  border:
+    3px solid #555;
+
+  border-radius:
+    11px;
+
+  text-align:
+    center;
+
+  font-size:
+    2rem;
+
+  font-weight:
+    bold;
+}
+
+
+#submitAnswer {
+
+  display:
+    block;
+
+  margin:
+    17px auto 0;
+
+  padding:
+    13px 27px;
+
+  border:
+    none;
+
+  border-radius:
+    11px;
+
+  background:
+    #2563eb;
+
+  color:
+    white;
+
+  font-size:
+    1.1rem;
+
+  font-weight:
+    bold;
+}
+
+
+#feedback {
+
+  min-height:
+    30px;
+
+  margin-top:
+    13px;
+
+  font-size:
+    1.1rem;
+
+  font-weight:
+    bold;
+}
+
+
+
+/* =====================================================
+   ZMAGOVALNI ZASLON
+===================================================== */
+
+#victoryScreen {
+
+  width:
+    min(960px, 96%);
+
+  min-height:
+    650px;
+
+  position:
+    relative;
+
+  overflow:
+    hidden;
+
+  margin:
+    15px auto;
+
+  padding:
+    22px 20px 35px;
+
+  border:
+    6px solid #315b8a;
+
+  border-radius:
+    30px;
+
+  background:
+
+    linear-gradient(
+
+      #87d2ff 0%,
+
+      #def4ff 56%,
+
+      #b0da91 56%,
+
+      #70b456 100%
+
+    );
 
   box-shadow:
     0 15px 40px rgba(0,0,0,0.25);
-
-  overflow: hidden;
-  position: relative;
 }
+
 
 .victory-stars {
-  font-size: 2rem;
-  animation: sparkle 0.8s infinite alternate;
+
+  font-size:
+    2rem;
+
+  animation:
+    sparkle 0.8s
+    infinite alternate;
 }
 
+
 @keyframes sparkle {
+
   from {
-    transform: scale(0.9);
-    opacity: 0.6;
+
+    transform:
+      scale(0.9);
+
+    opacity:
+      0.6;
   }
 
   to {
-    transform: scale(1.1);
-    opacity: 1;
+
+    transform:
+      scale(1.1);
+
+    opacity:
+      1;
   }
 }
 
+
 .victory-title {
-  font-size: 3.5rem;
-  font-weight: 900;
-  color: #173b69;
-  margin: 5px 0;
+
+  margin:
+    5px 0 0;
+
+  color:
+    #173b69;
+
+  font-size:
+    3.4rem;
+
+  font-weight:
+    900;
+
   text-shadow:
+
     2px 2px 0 white,
-    4px 4px 8px rgba(0,0,0,0.15);
+
+    4px 4px 8px
+    rgba(0,0,0,0.15);
 }
 
-
-/* =========================
-   GRAD + VITEZ
-========================= */
 
 .victory-scene {
-  min-height: 390px;
 
-  display: flex;
-  justify-content: center;
-  align-items: flex-end;
+  min-height:
+    390px;
 
-  gap: 35px;
+  display:
+    flex;
 
-  margin: 5px auto 0;
+  align-items:
+    flex-end;
+
+  justify-content:
+    center;
+
+  gap:
+    15px;
+
+  margin:
+    0 auto;
 }
 
 
-/* VELIK GRAD */
+
+/* =====================================================
+   VELIK GRAD
+===================================================== */
 
 .big-castle {
-  font-size: 230px;
-  line-height: 1;
+
+  font-size:
+    225px;
+
+  line-height:
+    1;
 
   filter:
     drop-shadow(
-      0 12px 8px rgba(0,0,0,0.25)
+      0 12px 9px
+      rgba(0,0,0,0.25)
     );
 
   animation:
-    castleAppear 1s ease-out;
+    castleAppear
+    1s ease-out;
 }
 
+
 @keyframes castleAppear {
+
   0% {
-    transform: scale(0.2);
-    opacity: 0;
+
+    transform:
+      scale(0.2);
+
+    opacity:
+      0;
   }
 
   70% {
-    transform: scale(1.08);
-    opacity: 1;
+
+    transform:
+      scale(1.08);
+
+    opacity:
+      1;
   }
 
   100% {
-    transform: scale(1);
+
+    transform:
+      scale(1);
+
+    opacity:
+      1;
   }
 }
 
 
-/* =========================
-   TVOJ VITEZ.PNG
-========================= */
 
-.victory-knight {
-  width: 260px;
-  max-height: 380px;
-  object-fit: contain;
+/* =====================================================
+   VITEZ1.PNG - SPRITE ANIMACIJA
 
-  transform-origin: center bottom;
+   Nastavljeno na:
+   6 sličic vodoravno v eni vrsti
+===================================================== */
+
+.knight-sprite-wrap {
+
+  width:
+    270px;
+
+  height:
+    390px;
+
+  position:
+    relative;
+
+  overflow:
+    hidden;
+
+  flex-shrink:
+    0;
+
+  animation:
+    knightJump
+    1.1s ease-in-out
+    infinite;
+}
+
+
+.knight-sprite {
+
+  width:
+    100%;
+
+  height:
+    100%;
+
+  background-image:
+    url("VITEZ1.PNG");
+
+  background-repeat:
+    no-repeat;
+
+  /*
+     Sprite ima 6 sličic,
+     zato je celotna slika
+     6x širša od prikazanega okvirja.
+  */
+
+  background-size:
+    600% 100%;
+
+  background-position:
+    0% 0%;
 
   filter:
     drop-shadow(
-      0 12px 8px rgba(0,0,0,0.25)
+      0 10px 7px
+      rgba(0,0,0,0.25)
     );
 
   animation:
-    knightVictory 0.75s ease-in-out infinite alternate;
+    knightFrames
+    1.1s steps(1)
+    infinite;
 }
 
 
-/*
-  ZMAGOVALNO GIBANJE VITEZA
-*/
 
-@keyframes knightVictory {
+/* 6 ZAPOREDNIH SLIČIC */
+
+@keyframes knightFrames {
 
   0% {
-    transform:
-      translateY(10px)
-      rotate(-2deg)
-      scale(0.97);
+
+    background-position:
+      0% 0%;
+  }
+
+  16.66% {
+
+    background-position:
+      20% 0%;
+  }
+
+  33.33% {
+
+    background-position:
+      40% 0%;
   }
 
   50% {
-    transform:
-      translateY(-18px)
-      rotate(2deg)
-      scale(1.03);
+
+    background-position:
+      60% 0%;
+  }
+
+  66.66% {
+
+    background-position:
+      80% 0%;
+  }
+
+  83.33% {
+
+    background-position:
+      100% 0%;
   }
 
   100% {
-    transform:
-      translateY(-30px)
-      rotate(-2deg)
-      scale(1.05);
+
+    background-position:
+      0% 0%;
   }
 }
 
 
-/* =========================
-   GLAVNO SPOROČILO
-========================= */
+
+/* DODATEN MAJHEN POSKOK */
+
+@keyframes knightJump {
+
+  0% {
+
+    transform:
+      translateY(0);
+  }
+
+  35% {
+
+    transform:
+      translateY(-8px);
+  }
+
+  55% {
+
+    transform:
+      translateY(-20px);
+  }
+
+  75% {
+
+    transform:
+      translateY(-7px);
+  }
+
+  100% {
+
+    transform:
+      translateY(0);
+  }
+}
+
+
+
+/* =====================================================
+   KONČNO SPOROČILO
+===================================================== */
 
 .home-message {
-  max-width: 760px;
-  margin: 10px auto 0;
-  padding: 18px 25px;
 
-  font-size: 2.7rem;
-  font-weight: 900;
+  max-width:
+    780px;
 
-  color: #173b69;
+  margin:
+    8px auto 0;
 
-  background: rgba(255,255,255,0.93);
+  padding:
+    19px 25px;
 
-  border-radius: 20px;
-  border: 4px solid #315b8a;
+  border:
+    4px solid #315b8a;
+
+  border-radius:
+    21px;
+
+  background:
+    rgba(255,255,255,0.94);
+
+  color:
+    #173b69;
+
+  font-size:
+    2.6rem;
+
+  font-weight:
+    900;
 
   box-shadow:
     0 7px 15px rgba(0,0,0,0.15);
 
   animation:
-    messageAppear 1.3s ease-out;
+    messageAppear
+    1.3s ease-out;
 }
+
 
 @keyframes messageAppear {
 
   from {
-    transform: translateY(30px);
-    opacity: 0;
+
+    transform:
+      translateY(30px);
+
+    opacity:
+      0;
   }
 
   to {
-    transform: translateY(0);
-    opacity: 1;
+
+    transform:
+      translateY(0);
+
+    opacity:
+      1;
   }
 }
 
+
 .bottom-stars {
-  margin-top: 16px;
+
+  margin-top:
+    15px;
 }
 
 
-/* =========================
-   TELEFON / TABLICA
-========================= */
 
-@media (max-width: 850px) {
+/* =====================================================
+   TABLICA
+===================================================== */
+
+@media
+(max-width: 900px) {
 
   .cell {
-    width: 27px;
-    height: 27px;
+
+    width:
+      28px;
+
+    height:
+      28px;
   }
 
   .knight {
-    font-size: 19px;
+
+    font-size:
+      20px;
   }
 
   .castle {
-    font-size: 21px;
+
+    font-size:
+      22px;
   }
 
   .dragon-small {
-    font-size: 14px;
+
+    font-size:
+      15px;
   }
 
   .dragon-medium {
-    font-size: 18px;
+
+    font-size:
+      19px;
   }
 
   .dragon-large {
-    font-size: 22px;
+
+    font-size:
+      23px;
   }
 
   .fire-on {
-    font-size: 20px;
-  }
 
+    font-size:
+      21px;
+  }
 }
 
 
-@media (max-width: 650px) {
+
+/* =====================================================
+   TELEFON
+===================================================== */
+
+@media
+(max-width: 650px) {
+
+  body {
+
+    padding:
+      10px;
+  }
+
+  h1 {
+
+    font-size:
+      1.55rem;
+  }
 
   #victoryScreen {
-    min-height: 550px;
+
+    min-height:
+      530px;
   }
 
   .victory-title {
-    font-size: 2.4rem;
+
+    font-size:
+      2.3rem;
   }
 
   .victory-scene {
-    min-height: 310px;
-    gap: 5px;
+
+    min-height:
+      300px;
+
+    gap:
+      0;
   }
 
   .big-castle {
-    font-size: 140px;
+
+    font-size:
+      135px;
   }
 
-  .victory-knight {
-    width: 160px;
-    max-height: 280px;
+  .knight-sprite-wrap {
+
+    width:
+      160px;
+
+    height:
+      260px;
   }
 
   .home-message {
-    font-size: 1.8rem;
-  }
 
+    font-size:
+      1.7rem;
+  }
 }
 
 </style>
+
 </head>
 
 
@@ -543,7 +1165,9 @@ button {
 
 
 <h1 id="gameTitle">
+
   ⚔️ Vitezov matematični labirint 🏰
+
 </h1>
 
 
@@ -552,7 +1176,9 @@ button {
   Poišči pot do gradu.
 
   <div class="arrow-help">
+
     ← &nbsp; ↑ &nbsp; ↓ &nbsp; →
+
   </div>
 
   Premikaj viteza s puščicami.
@@ -560,8 +1186,13 @@ button {
   <br><br>
 
   🐉 Ko prideš do zmaja,
-  klikni <strong>⚔️ MEČ</strong>
-  in reši račun.
+  se bo račun odprl sam.
+
+  <br>
+
+  Premagati moraš vseh
+  <strong>5 zmajev</strong>,
+  ki varujejo pot do gradu.
 
   <br>
 
@@ -572,14 +1203,29 @@ button {
 
 
 <div id="message">
+
   Poišči pot do gradu.
+
+</div>
+
+
+<div id="dragonCounter">
+
+  🐉 Premagani zmaji: 0 / 5
+
 </div>
 
 
 <div id="fireStatus"></div>
 
+
 <div id="maze"></div>
 
+
+
+<!-- ==================================================
+     PREMIKANJE
+=================================================== -->
 
 <div class="controls">
 
@@ -587,52 +1233,63 @@ button {
 
     <button
       class="move-button"
-      data-direction="up">
+      data-direction="up"
+      aria-label="Gor">
+
       ↑
+
     </button>
 
   </div>
+
 
   <div class="controls-row">
 
     <button
       class="move-button"
-      data-direction="left">
+      data-direction="left"
+      aria-label="Levo">
+
       ←
+
     </button>
+
 
     <button
       class="move-button"
-      data-direction="down">
+      data-direction="down"
+      aria-label="Dol">
+
       ↓
+
     </button>
+
 
     <button
       class="move-button"
-      data-direction="right">
+      data-direction="right"
+      aria-label="Desno">
+
       →
+
     </button>
 
   </div>
-
-  <button
-    class="attack-button"
-    id="attackButton">
-
-    ⚔️ MEČ
-
-  </button>
 
 </div>
 
 
 <button id="restart">
+
   🔄 Nov labirint
+
 </button>
 
 
 
-<!-- RAČUN -->
+<!-- ==================================================
+     OKNO Z RAČUNOM
+=================================================== -->
 
 <div id="mathOverlay">
 
@@ -641,7 +1298,9 @@ button {
     <div id="dragonPreview"></div>
 
     <h2>
+
       🐉 Premagaj zmaja!
+
     </h2>
 
     <div id="progress"></div>
@@ -651,13 +1310,17 @@ button {
     <input
       id="answer"
       type="number"
+      min="0"
+      max="10"
       inputmode="numeric"
       autocomplete="off"
       aria-label="Vpiši odgovor"
     >
 
     <button id="submitAnswer">
+
       Preveri odgovor
+
     </button>
 
     <div id="feedback"></div>
@@ -667,88 +1330,185 @@ button {
 </div>
 
 
+
 <script>
 
-/* =========================
-   NASTAVITVE
-========================= */
+/* =====================================================
+   GLAVNE NASTAVITVE
+===================================================== */
 
 const ROWS = 19;
+
 const COLS = 25;
 
-const NUMBER_OF_FIRES = 4;
-
-let maze = [];
-
-let player = {
+const START = {
   row: 1,
   col: 1
 };
 
-let castle = {
-  row: ROWS - 2,
-  col: COLS - 2
+const NUMBER_OF_MANDATORY_DRAGONS = 5;
+
+const NUMBER_OF_FIRES = 4;
+
+const TARGET_EXTRA_OPENINGS = 28;
+
+const EXTRA_DEAD_ENDS = 16;
+
+
+
+/* =====================================================
+   STANJE IGRE
+===================================================== */
+
+let maze = [];
+
+let player = {
+  row: START.row,
+  col: START.col
 };
 
+
+let castle = {
+
+  row:
+    ROWS - 2,
+
+  col:
+    COLS - 2
+};
+
+
 let dragons = [];
+
 let fires = [];
 
+
+let defeatedMandatoryDragons = 0;
+
+
 let fireIsOn = true;
+
 let fireTimer = null;
 
+
 let activeDragon = null;
+
+let pendingDragonMove = null;
+
+
 let correctAnswer = null;
 
 let gameWon = false;
 
 
-/* =========================
-   ELEMENTI
-========================= */
+
+/* =====================================================
+   HTML ELEMENTI
+===================================================== */
 
 const mazeElement =
-  document.getElementById("maze");
+  document.getElementById(
+    "maze"
+  );
+
 
 const messageElement =
-  document.getElementById("message");
+  document.getElementById(
+    "message"
+  );
+
+
+const dragonCounterElement =
+  document.getElementById(
+    "dragonCounter"
+  );
+
 
 const fireStatus =
-  document.getElementById("fireStatus");
+  document.getElementById(
+    "fireStatus"
+  );
+
 
 const overlay =
-  document.getElementById("mathOverlay");
+  document.getElementById(
+    "mathOverlay"
+  );
+
 
 const problemElement =
-  document.getElementById("problem");
+  document.getElementById(
+    "problem"
+  );
+
 
 const progressElement =
-  document.getElementById("progress");
+  document.getElementById(
+    "progress"
+  );
+
 
 const dragonPreview =
-  document.getElementById("dragonPreview");
+  document.getElementById(
+    "dragonPreview"
+  );
+
 
 const answerInput =
-  document.getElementById("answer");
+  document.getElementById(
+    "answer"
+  );
+
 
 const feedbackElement =
-  document.getElementById("feedback");
+  document.getElementById(
+    "feedback"
+  );
+
 
 const controlsElement =
-  document.querySelector(".controls");
+  document.querySelector(
+    ".controls"
+  );
+
 
 const instructionsElement =
-  document.querySelector(".instructions");
+  document.querySelector(
+    ".instructions"
+  );
+
 
 const titleElement =
-  document.getElementById("gameTitle");
+  document.getElementById(
+    "gameTitle"
+  );
+
 
 const restartButton =
-  document.getElementById("restart");
+  document.getElementById(
+    "restart"
+  );
 
 
-/* =========================
-   MEŠANJE
-========================= */
+
+/* =====================================================
+   POMOŽNE FUNKCIJE
+===================================================== */
+
+function randomNumber(
+  min,
+  max
+) {
+
+  return Math.floor(
+
+    Math.random() *
+    (max - min + 1)
+
+  ) + min;
+}
+
+
 
 function shuffle(array) {
 
@@ -760,60 +1520,110 @@ function shuffle(array) {
 
     const j =
       Math.floor(
-        Math.random() * (i + 1)
+        Math.random() *
+        (i + 1)
       );
 
-    [array[i], array[j]] =
-    [array[j], array[i]];
 
+    [
+      array[i],
+      array[j]
+    ] = [
+      array[j],
+      array[i]
+    ];
   }
 
   return array;
 }
 
 
-/* =========================
-   USTVARJANJE LABIRINTA
-========================= */
 
-function generateMaze() {
+function positionKey(
+  row,
+  col
+) {
+
+  return `${row},${col}`;
+}
+
+
+
+/* =====================================================
+   OSNOVNI - POPOLNI LABIRINT
+
+   Najprej nastane labirint,
+   ki ima med začetkom in gradom
+   samo eno pot.
+===================================================== */
+
+function generatePerfectMaze() {
 
   maze =
     Array.from(
-      { length: ROWS },
-      () => Array(COLS).fill(1)
+
+      {
+        length: ROWS
+      },
+
+      () =>
+        Array(COLS).fill(1)
+
     );
 
+
   const directions = [
+
     [-2, 0],
+
     [2, 0],
+
     [0, -2],
+
     [0, 2]
+
   ];
 
-  function carve(row, col) {
+
+  function carve(
+    row,
+    col
+  ) {
 
     maze[row][col] = 0;
 
+
     const dirs =
-      shuffle([...directions]);
+      shuffle(
+        [...directions]
+      );
+
 
     for (
-      const [dr, dc] of dirs
+      const [dr, dc]
+      of dirs
     ) {
 
       const nr =
         row + dr;
 
+
       const nc =
         col + dc;
 
+
       if (
+
         nr > 0 &&
+
         nr < ROWS - 1 &&
+
         nc > 0 &&
+
         nc < COLS - 1 &&
+
         maze[nr][nc] === 1
+
       ) {
 
         maze[
@@ -822,146 +1632,21 @@ function generateMaze() {
           col + dc / 2
         ] = 0;
 
-        carve(nr, nc);
+
+        carve(
+          nr,
+          nc
+        );
       }
     }
   }
 
-  carve(1, 1);
 
+  carve(
+    START.row,
+    START.col
+  );
 
-  /* DODATNE POTI */
-
-  const EXTRA_OPENINGS = 28;
-
-  let openingsMade = 0;
-  let attempts = 0;
-
-  while (
-    openingsMade < EXTRA_OPENINGS &&
-    attempts < 800
-  ) {
-
-    attempts++;
-
-    const row =
-      Math.floor(
-        Math.random() *
-        (ROWS - 2)
-      ) + 1;
-
-    const col =
-      Math.floor(
-        Math.random() *
-        (COLS - 2)
-      ) + 1;
-
-    if (
-      maze[row][col] !== 1
-    ) {
-      continue;
-    }
-
-    const up =
-      maze[row - 1]?.[col] === 0;
-
-    const down =
-      maze[row + 1]?.[col] === 0;
-
-    const left =
-      maze[row]?.[col - 1] === 0;
-
-    const right =
-      maze[row]?.[col + 1] === 0;
-
-    if (
-      (up && down) ||
-      (left && right)
-    ) {
-
-      maze[row][col] = 0;
-      openingsMade++;
-    }
-  }
-
-
-  /* DODATNE SLEPE POTI */
-
-  const EXTRA_DEAD_ENDS = 16;
-
-  let deadEndsMade = 0;
-
-  attempts = 0;
-
-  while (
-    deadEndsMade < EXTRA_DEAD_ENDS &&
-    attempts < 800
-  ) {
-
-    attempts++;
-
-    const row =
-      Math.floor(
-        Math.random() *
-        (ROWS - 2)
-      ) + 1;
-
-    const col =
-      Math.floor(
-        Math.random() *
-        (COLS - 2)
-      ) + 1;
-
-    if (
-      maze[row][col] !== 1
-    ) {
-      continue;
-    }
-
-    let openNeighbours = 0;
-
-    if (
-      maze[row - 1]?.[col] === 0
-    ) {
-      openNeighbours++;
-    }
-
-    if (
-      maze[row + 1]?.[col] === 0
-    ) {
-      openNeighbours++;
-    }
-
-    if (
-      maze[row]?.[col - 1] === 0
-    ) {
-      openNeighbours++;
-    }
-
-    if (
-      maze[row]?.[col + 1] === 0
-    ) {
-      openNeighbours++;
-    }
-
-    if (
-      openNeighbours === 1
-    ) {
-
-      maze[row][col] = 0;
-      deadEndsMade++;
-    }
-  }
-
-  player = {
-    row: 1,
-    col: 1
-  };
-
-  castle = {
-    row: ROWS - 2,
-    col: COLS - 2
-  };
 
   maze[
     castle.row
@@ -971,203 +1656,704 @@ function generateMaze() {
 }
 
 
-/* =========================
-   NAJDI POT DO GRADU
-========================= */
 
-function findPathToCastle() {
+/* =====================================================
+   BFS - NAJDI POT
+===================================================== */
+
+function findPath(
+  startRow,
+  startCol,
+  goalRow,
+  goalCol,
+  blockedPosition = null
+) {
 
   const queue = [
+
     {
-      row: player.row,
-      col: player.col,
-      path: []
+
+      row:
+        startRow,
+
+      col:
+        startCol,
+
+      path:
+        []
+
     }
+
   ];
+
 
   const visited =
     new Set();
 
+
   visited.add(
-    `${player.row},${player.col}`
+
+    positionKey(
+      startRow,
+      startCol
+    )
+
   );
 
-  const dirs = [
-    [-1,0],
-    [1,0],
-    [0,-1],
-    [0,1]
+
+  const directions = [
+
+    [-1, 0],
+
+    [1, 0],
+
+    [0, -1],
+
+    [0, 1]
+
   ];
 
+
   while (
-    queue.length
+    queue.length > 0
   ) {
 
     const current =
       queue.shift();
 
-    const newPath = [
+
+    const currentPath = [
+
       ...current.path,
+
       {
-        row: current.row,
-        col: current.col
+
+        row:
+          current.row,
+
+        col:
+          current.col
+
       }
+
     ];
 
+
     if (
-      current.row === castle.row &&
-      current.col === castle.col
+
+      current.row ===
+      goalRow &&
+
+      current.col ===
+      goalCol
+
     ) {
-      return newPath;
+
+      return currentPath;
     }
 
+
     for (
-      const [dr, dc] of dirs
+      const [dr, dc]
+      of directions
     ) {
 
       const nr =
         current.row + dr;
 
+
       const nc =
         current.col + dc;
 
-      const key =
-        `${nr},${nc}`;
 
       if (
-        maze[nr]?.[nc] === 0 &&
-        !visited.has(key)
+
+        blockedPosition &&
+
+        nr ===
+        blockedPosition.row &&
+
+        nc ===
+        blockedPosition.col
+
       ) {
 
-        visited.add(key);
-
-        queue.push({
-          row: nr,
-          col: nc,
-          path: newPath
-        });
+        continue;
       }
+
+
+      if (
+
+        maze[nr]?.[nc] !== 0
+
+      ) {
+
+        continue;
+      }
+
+
+      const key =
+        positionKey(
+          nr,
+          nc
+        );
+
+
+      if (
+        visited.has(key)
+      ) {
+
+        continue;
+      }
+
+
+      visited.add(key);
+
+
+      queue.push({
+
+        row:
+          nr,
+
+        col:
+          nc,
+
+        path:
+          currentPath
+
+      });
     }
   }
+
 
   return [];
 }
 
 
-/* =========================
-   ZMAJI
-========================= */
 
-function placeDragons() {
+function findPathFromStart() {
 
-  const path =
-    findPathToCastle();
+  return findPath(
+
+    START.row,
+
+    START.col,
+
+    castle.row,
+
+    castle.col
+
+  );
+}
+
+
+
+/* =====================================================
+   5 OBVEZNIH ZMAJEV
+
+   Zmaje postavimo na edino pot,
+   preden dodamo dodatne povezave.
+===================================================== */
+
+function placeMandatoryDragons() {
 
   dragons = [];
 
+
+  const path =
+    findPathFromStart();
+
+
   const fractions = [
-    0.18,
-    0.35,
-    0.53,
-    0.70,
+
+    0.16,
+
+    0.33,
+
+    0.50,
+
+    0.67,
+
     0.84
+
   ];
 
-  const types = [
+
+  const dragonTypes = [
+
     {
-      type: "small",
-      questions: 1
+      type:
+        "small",
+
+      questions:
+        1
     },
+
     {
-      type: "medium",
-      questions: 2
+      type:
+        "medium",
+
+      questions:
+        2
     },
+
     {
-      type: "small",
-      questions: 1
+      type:
+        "small",
+
+      questions:
+        1
     },
+
     {
-      type: "medium",
-      questions: 2
+      type:
+        "medium",
+
+      questions:
+        2
     },
+
     {
-      type: "large",
-      questions: 3
+      type:
+        "large",
+
+      questions:
+        3
     }
+
   ];
+
 
   fractions.forEach(
-    (fraction, index) => {
+
+    (
+      fraction,
+      index
+    ) => {
+
+      let pathIndex =
+        Math.floor(
+          path.length *
+          fraction
+        );
+
+
+      pathIndex =
+        Math.max(
+          3,
+          pathIndex
+        );
+
+
+      pathIndex =
+        Math.min(
+          path.length - 4,
+          pathIndex
+        );
+
 
       const position =
-        path[
-          Math.floor(
-            path.length * fraction
-          )
-        ];
+        path[pathIndex];
 
-      if (!position) {
-        return;
-      }
 
       dragons.push({
 
-        row: position.row,
-        col: position.col,
+        id:
+          `mandatory-${index}`,
+
+        row:
+          position.row,
+
+        col:
+          position.col,
 
         type:
-          types[index].type,
+          dragonTypes[index].type,
 
         questions:
-          types[index].questions,
+          dragonTypes[index].questions,
 
         remaining:
-          types[index].questions
+          dragonTypes[index].questions,
+
+        mandatory:
+          true
+
       });
     }
   );
 }
 
 
-function getDragonAt(row, col) {
+
+/* =====================================================
+   PREVERJANJE:
+   ALI JE VSAK OD 5 ZMAJEV ŠE VEDNO OBVEZEN?
+
+   Za vsakega zmaja začasno
+   obravnavamo njegovo polje kot zid.
+
+   Če bi bilo do gradu mogoče
+   priti brez njega, dodane poti
+   ne dovolimo.
+===================================================== */
+
+function allMandatoryDragonsStillRequired() {
+
+  const mandatoryDragons =
+    dragons.filter(
+
+      dragon =>
+        dragon.mandatory
+
+    );
+
+
+  for (
+    const dragon
+    of mandatoryDragons
+  ) {
+
+    const alternativePath =
+      findPath(
+
+        START.row,
+
+        START.col,
+
+        castle.row,
+
+        castle.col,
+
+        {
+
+          row:
+            dragon.row,
+
+          col:
+            dragon.col
+
+        }
+
+      );
+
+
+    if (
+      alternativePath.length > 0
+    ) {
+
+      return false;
+    }
+  }
+
+
+  return true;
+}
+
+
+
+/* =====================================================
+   DODAJANJE KOMPLEKSNIH POVEZAV
+
+   Dodajamo zanke in križišča,
+   vendar SAMO, če vseh pet zmajev
+   ostane obveznih.
+===================================================== */
+
+function addSafeExtraOpenings() {
+
+  let openingsMade = 0;
+
+  let attempts = 0;
+
+
+  const maxAttempts =
+    4000;
+
+
+  while (
+
+    openingsMade <
+    TARGET_EXTRA_OPENINGS &&
+
+    attempts <
+    maxAttempts
+
+  ) {
+
+    attempts++;
+
+
+    const row =
+      randomNumber(
+        1,
+        ROWS - 2
+      );
+
+
+    const col =
+      randomNumber(
+        1,
+        COLS - 2
+      );
+
+
+    if (
+      maze[row][col] !== 1
+    ) {
+
+      continue;
+    }
+
+
+    const up =
+      maze[row - 1]?.[col] === 0;
+
+
+    const down =
+      maze[row + 1]?.[col] === 0;
+
+
+    const left =
+      maze[row]?.[col - 1] === 0;
+
+
+    const right =
+      maze[row]?.[col + 1] === 0;
+
+
+    const connectsVertical =
+      up && down;
+
+
+    const connectsHorizontal =
+      left && right;
+
+
+    if (
+      !connectsVertical &&
+      !connectsHorizontal
+    ) {
+
+      continue;
+    }
+
+
+    /*
+      Začasno odpremo zid.
+    */
+
+    maze[row][col] = 0;
+
+
+    /*
+      Preverimo, ali bi s tem
+      lahko obšli katerega od
+      petih zmajev.
+    */
+
+    if (
+      allMandatoryDragonsStillRequired()
+    ) {
+
+      openingsMade++;
+
+    } else {
+
+      /*
+        Če bi nastal obvoz,
+        zid zapremo nazaj.
+      */
+
+      maze[row][col] = 1;
+    }
+  }
+}
+
+
+
+/* =====================================================
+   DODATNE SLEPE POTI
+
+   Dajo labirintu še več vej,
+   vendar ne ustvarjajo povezave,
+   ki bi obšla obvezne zmaje.
+===================================================== */
+
+function addDeadEnds() {
+
+  let made = 0;
+
+  let attempts = 0;
+
+
+  while (
+
+    made <
+    EXTRA_DEAD_ENDS &&
+
+    attempts <
+    2500
+
+  ) {
+
+    attempts++;
+
+
+    const row =
+      randomNumber(
+        1,
+        ROWS - 2
+      );
+
+
+    const col =
+      randomNumber(
+        1,
+        COLS - 2
+      );
+
+
+    if (
+      maze[row][col] !== 1
+    ) {
+
+      continue;
+    }
+
+
+    let openNeighbours = 0;
+
+
+    if (
+      maze[row - 1]?.[col] === 0
+    ) {
+
+      openNeighbours++;
+    }
+
+
+    if (
+      maze[row + 1]?.[col] === 0
+    ) {
+
+      openNeighbours++;
+    }
+
+
+    if (
+      maze[row]?.[col - 1] === 0
+    ) {
+
+      openNeighbours++;
+    }
+
+
+    if (
+      maze[row]?.[col + 1] === 0
+    ) {
+
+      openNeighbours++;
+    }
+
+
+    if (
+      openNeighbours !== 1
+    ) {
+
+      continue;
+    }
+
+
+    maze[row][col] = 0;
+
+
+    /*
+      Dodatna varnost:
+      še vedno preverimo obvezne zmaje.
+    */
+
+    if (
+      allMandatoryDragonsStillRequired()
+    ) {
+
+      made++;
+
+    } else {
+
+      maze[row][col] = 1;
+    }
+  }
+}
+
+
+
+/* =====================================================
+   ZMAJ NA DOLOČENEM POLJU
+===================================================== */
+
+function getDragonAt(
+  row,
+  col
+) {
 
   return dragons.find(
+
     dragon =>
+
       dragon.row === row &&
+
       dragon.col === col
+
   );
 }
 
 
-/* =========================
+
+/* =====================================================
    OGENJ
-========================= */
+===================================================== */
 
 function placeFires() {
 
-  const path =
-    findPathToCastle();
-
   fires = [];
+
+
+  const path =
+    findPathFromStart();
+
+
+  if (
+    path.length < 12
+  ) {
+
+    return;
+  }
+
 
   const candidates =
     path.slice(
-      5,
-      path.length - 5
+      4,
+      path.length - 4
     );
+
 
   shuffle(candidates);
 
+
   for (
-    const position of candidates
+    const position
+    of candidates
   ) {
 
     if (
       fires.length >=
       NUMBER_OF_FIRES
     ) {
+
       break;
     }
+
 
     if (
       getDragonAt(
@@ -1175,85 +2361,187 @@ function placeFires() {
         position.col
       )
     ) {
+
       continue;
     }
 
-    const tooClose =
-      fires.some(
-        fire =>
-          Math.abs(
-            fire.row -
-            position.row
-          )
-          +
-          Math.abs(
-            fire.col -
-            position.col
-          )
-          < 5
-      );
 
     if (
-      tooClose
+
+      position.row ===
+      START.row &&
+
+      position.col ===
+      START.col
+
     ) {
+
       continue;
     }
 
+
+    if (
+
+      position.row ===
+      castle.row &&
+
+      position.col ===
+      castle.col
+
+    ) {
+
+      continue;
+    }
+
+
+    const tooCloseToDragon =
+      dragons.some(
+
+        dragon =>
+
+          Math.abs(
+
+            dragon.row -
+            position.row
+
+          )
+
+          +
+
+          Math.abs(
+
+            dragon.col -
+            position.col
+
+          )
+
+          < 3
+
+      );
+
+
+    if (
+      tooCloseToDragon
+    ) {
+
+      continue;
+    }
+
+
+    const tooCloseToAnotherFire =
+      fires.some(
+
+        fire =>
+
+          Math.abs(
+
+            fire.row -
+            position.row
+
+          )
+
+          +
+
+          Math.abs(
+
+            fire.col -
+            position.col
+
+          )
+
+          < 5
+
+      );
+
+
+    if (
+      tooCloseToAnotherFire
+    ) {
+
+      continue;
+    }
+
+
     fires.push({
-      row: position.row,
-      col: position.col
+
+      row:
+        position.row,
+
+      col:
+        position.col
+
     });
   }
 }
 
 
-function getFireAt(row, col) {
+
+function getFireAt(
+  row,
+  col
+) {
 
   return fires.find(
+
     fire =>
+
       fire.row === row &&
+
       fire.col === col
+
   );
 }
 
 
-/* =========================
-   OGENJ - ČASOVNIK
-========================= */
+
+/* =====================================================
+   OGENJ - ČAS
+===================================================== */
 
 function startFireTimer() {
 
   if (
     fireTimer
   ) {
+
     clearInterval(
       fireTimer
     );
   }
 
+
   fireIsOn = true;
+
 
   updateFireStatus();
 
+
   fireTimer =
     setInterval(
+
       () => {
 
         fireIsOn =
           !fireIsOn;
 
+
         updateFireStatus();
+
 
         if (
           !gameWon
         ) {
+
           drawMaze();
         }
 
       },
+
       2000
+
     );
 }
+
 
 
 function updateFireStatus() {
@@ -1263,7 +2551,7 @@ function updateFireStatus() {
   ) {
 
     fireStatus.textContent =
-      "🔥 Ogenj gori – počakaj!";
+      "🔥 Ogenj gori – počakaj, da ugasne.";
 
   } else {
 
@@ -1273,18 +2561,35 @@ function updateFireStatus() {
 }
 
 
-/* =========================
+
+/* =====================================================
+   ŠTEVEC ZMAJEV
+===================================================== */
+
+function updateDragonCounter() {
+
+  dragonCounterElement.textContent =
+
+    `🐉 Premagani zmaji: ${defeatedMandatoryDragons} / ${NUMBER_OF_MANDATORY_DRAGONS}`;
+}
+
+
+
+/* =====================================================
    RISANJE LABIRINTA
-========================= */
+===================================================== */
 
 function drawMaze() {
 
   mazeElement.innerHTML =
     "";
 
+
   mazeElement.style
     .gridTemplateColumns =
-    `repeat(${COLS}, auto)`;
+
+      `repeat(${COLS}, auto)`;
+
 
   for (
     let row = 0;
@@ -1303,9 +2608,11 @@ function drawMaze() {
           "div"
         );
 
+
       cell.classList.add(
         "cell"
       );
+
 
       if (
         maze[row][col] === 1
@@ -1323,32 +2630,41 @@ function drawMaze() {
       }
 
 
+
       /* GRAD */
 
       if (
+
         row === castle.row &&
+
         col === castle.col
+
       ) {
 
         cell.classList.add(
           "goal"
         );
 
-        const icon =
+
+        const castleIcon =
           document.createElement(
             "span"
           );
 
-        icon.className =
+
+        castleIcon.className =
           "castle";
 
-        icon.textContent =
+
+        castleIcon.textContent =
           "🏰";
 
+
         cell.appendChild(
-          icon
+          castleIcon
         );
       }
+
 
 
       /* OGENJ */
@@ -1359,6 +2675,7 @@ function drawMaze() {
           col
         );
 
+
       if (
         fire
       ) {
@@ -1368,9 +2685,11 @@ function drawMaze() {
             "span"
           );
 
+
         fireIcon.classList.add(
           "fire"
         );
+
 
         if (
           fireIsOn
@@ -1379,6 +2698,7 @@ function drawMaze() {
           fireIcon.classList.add(
             "fire-on"
           );
+
 
           fireIcon.textContent =
             "🔥";
@@ -1389,14 +2709,17 @@ function drawMaze() {
             "fire-off"
           );
 
+
           fireIcon.textContent =
             "○";
         }
+
 
         cell.appendChild(
           fireIcon
         );
       }
+
 
 
       /* ZMAJ */
@@ -1407,32 +2730,48 @@ function drawMaze() {
           col
         );
 
+
       if (
         dragon
       ) {
 
-        const d =
+        const dragonIcon =
           document.createElement(
             "span"
           );
 
-        d.textContent =
+
+        dragonIcon.classList.add(
+          "dragon"
+        );
+
+
+        dragonIcon.classList.add(
+
+          `dragon-${dragon.type}`
+
+        );
+
+
+        dragonIcon.textContent =
           "🐉";
 
-        d.className =
-          `dragon-${dragon.type}`;
 
         cell.appendChild(
-          d
+          dragonIcon
         );
       }
+
 
 
       /* VITEZ */
 
       if (
+
         player.row === row &&
+
         player.col === col
+
       ) {
 
         const knight =
@@ -1440,16 +2779,20 @@ function drawMaze() {
             "span"
           );
 
+
         knight.className =
           "knight";
 
+
         knight.textContent =
           "🛡️";
+
 
         cell.appendChild(
           knight
         );
       }
+
 
       mazeElement.appendChild(
         cell
@@ -1459,48 +2802,66 @@ function drawMaze() {
 }
 
 
-/* =========================
-   PREMIKANJE
-========================= */
 
-function movePlayer(direction) {
+/* =====================================================
+   PREMIKANJE
+
+   Če otrok poskusi stopiti
+   na zmaja, se račun SAMODEJNO odpre.
+===================================================== */
+
+function movePlayer(
+  direction
+) {
 
   if (
     gameWon ||
     activeDragon
   ) {
+
     return;
   }
+
 
   let nextRow =
     player.row;
 
+
   let nextCol =
     player.col;
+
 
   if (
     direction === "up"
   ) {
+
     nextRow--;
   }
+
 
   if (
     direction === "down"
   ) {
+
     nextRow++;
   }
+
 
   if (
     direction === "left"
   ) {
+
     nextCol--;
   }
+
 
   if (
     direction === "right"
   ) {
+
     nextCol++;
   }
+
 
   if (
     maze[nextRow]?.[nextCol] !== 0
@@ -1512,27 +2873,58 @@ function movePlayer(direction) {
     return;
   }
 
+
+
+  /* ===================================================
+     ZMAJ:
+     NI VEČ GUMBA MEČ.
+
+     Ko otrok želi stopiti
+     na zmajevo polje,
+     se račun odpre sam.
+  =================================================== */
+
   const dragon =
     getDragonAt(
       nextRow,
       nextCol
     );
 
+
   if (
     dragon
   ) {
 
-    messageElement.textContent =
-      "🐉 Zmaj ti zapira pot! Klikni ⚔️ MEČ.";
+    pendingDragonMove = {
+
+      row:
+        nextRow,
+
+      col:
+        nextCol
+
+    };
+
+
+    startDragonChallenge(
+      dragon
+    );
+
 
     return;
   }
 
+
+
+  /* NAVADEN PREMIK */
+
   player.row =
     nextRow;
 
+
   player.col =
     nextCol;
+
 
 
   /* OGENJ */
@@ -1543,49 +2935,59 @@ function movePlayer(direction) {
       player.col
     );
 
+
   if (
     fire &&
     fireIsOn
   ) {
 
     messageElement.textContent =
-      "🔥 Ojoj! Stopil si v ogenj. Pojavil se je nov zmaj!";
+      "🔥 Ojoj! Stopil si v ogenj. Pojavil se je dodaten zmaj!";
+
 
     spawnExtraDragon();
+
+  } else {
+
+    messageElement.textContent =
+      "Nadaljuj proti gradu!";
   }
 
+
   drawMaze();
+
 
 
   /* GRAD */
 
   if (
-    player.row === castle.row &&
-    player.col === castle.col
+
+    player.row ===
+    castle.row &&
+
+    player.col ===
+    castle.col
+
   ) {
 
     winGame();
-
-  } else {
-
-    checkNearbyDragon();
   }
 }
 
 
-/* =========================
-   DODATNI ZMAJ
-========================= */
+
+/* =====================================================
+   DODATEN ZMAJ OB OGNJU
+
+   Ta zmaj je lahko dodaten.
+   Pet glavnih zmajev pa ostane
+   obveznih.
+===================================================== */
 
 function spawnExtraDragon() {
 
-  if (
-    dragons.length >= 10
-  ) {
-    return;
-  }
-
   const possible = [];
+
 
   for (
     let row = 1;
@@ -1602,22 +3004,34 @@ function spawnExtraDragon() {
       if (
         maze[row][col] !== 0
       ) {
+
         continue;
       }
 
+
       if (
+
         row === player.row &&
+
         col === player.col
+
       ) {
+
         continue;
       }
 
+
       if (
+
         row === castle.row &&
+
         col === castle.col
+
       ) {
+
         continue;
       }
+
 
       if (
         getDragonAt(
@@ -1625,8 +3039,10 @@ function spawnExtraDragon() {
           col
         )
       ) {
+
         continue;
       }
+
 
       if (
         getFireAt(
@@ -1634,205 +3050,226 @@ function spawnExtraDragon() {
           col
         )
       ) {
+
         continue;
       }
+
 
       const distance =
         Math.abs(
-          row - player.row
+
+          row -
+          player.row
+
         )
+
         +
+
         Math.abs(
-          col - player.col
+
+          col -
+          player.col
+
         );
 
+
       if (
-        distance < 6
+        distance < 5
       ) {
+
         continue;
       }
 
+
       possible.push({
+
         row,
         col
+
       });
     }
   }
 
+
   if (
     possible.length === 0
   ) {
+
     return;
   }
+
 
   const chosen =
     possible[
-      Math.floor(
-        Math.random() *
-        possible.length
+
+      randomNumber(
+        0,
+        possible.length - 1
       )
+
     ];
+
 
   dragons.push({
 
-    row: chosen.row,
-    col: chosen.col,
+    id:
+      `extra-${Date.now()}-${Math.random()}`,
 
-    type: "small",
+    row:
+      chosen.row,
 
-    questions: 1,
+    col:
+      chosen.col,
 
-    remaining: 1
+    type:
+      "small",
+
+    questions:
+      1,
+
+    remaining:
+      1,
+
+    mandatory:
+      false
+
   });
+
+
+  drawMaze();
 }
 
 
-/* =========================
-   ZMAJ V BLIŽINI
-========================= */
 
-function findNearbyDragon() {
+/* =====================================================
+   ZAČNI RAČUN PRI ZMAJU
+===================================================== */
 
-  const dirs = [
-    [-1,0],
-    [1,0],
-    [0,-1],
-    [0,1]
-  ];
-
-  for (
-    const [dr, dc] of dirs
-  ) {
-
-    const dragon =
-      getDragonAt(
-        player.row + dr,
-        player.col + dc
-      );
-
-    if (
-      dragon
-    ) {
-      return dragon;
-    }
-  }
-
-  return null;
-}
-
-
-function checkNearbyDragon() {
-
-  const dragon =
-    findNearbyDragon();
-
-  if (
-    dragon
-  ) {
-
-    messageElement.textContent =
-      "🐉 Zmaj je blizu! Klikni ⚔️ MEČ.";
-  }
-}
-
-
-/* =========================
-   NAPAD
-========================= */
-
-function attackDragon() {
-
-  const dragon =
-    findNearbyDragon();
-
-  if (
-    !dragon
-  ) {
-
-    messageElement.textContent =
-      "⚔️ V bližini ni zmaja.";
-
-    return;
-  }
+function startDragonChallenge(
+  dragon
+) {
 
   activeDragon =
     dragon;
 
-  showDragon();
+
+  messageElement.textContent =
+    "🐉 Zmaj ti zapira pot! Reši račun.";
+
+
+  showDragonChallenge();
+
 
   createMathProblem();
+
 
   overlay.classList.add(
     "visible"
   );
 
+
   setTimeout(
-    () => answerInput.focus(),
-    50
+
+    () => {
+
+      answerInput.focus();
+
+    },
+
+    80
+
   );
 }
 
 
-/* =========================
-   VELIKOST ZMAJA
-========================= */
 
-function showDragon() {
+/* =====================================================
+   PRIKAŽI VELIKOST ZMAJA
+===================================================== */
 
-  let size = 36;
+function showDragonChallenge() {
+
+  if (
+    !activeDragon
+  ) {
+
+    return;
+  }
+
+
+  let size = 42;
+
 
   if (
     activeDragon.type ===
     "medium"
   ) {
-    size = 52;
+
+    size = 60;
   }
+
 
   if (
     activeDragon.type ===
     "large"
   ) {
-    size = 72;
+
+    size = 82;
   }
 
-  dragonPreview.innerHTML =
-    `<span style="font-size:${size}px">🐉</span>`;
 
-  const current =
-    activeDragon.questions
-    -
-    activeDragon.remaining
-    +
+  dragonPreview.innerHTML =
+
+    `<span style="font-size:${size}px;">🐉</span>`;
+
+
+  const currentQuestion =
+
+    activeDragon.questions -
+
+    activeDragon.remaining +
+
     1;
 
+
   progressElement.textContent =
-    `Račun ${current} od ${activeDragon.questions}`;
+
+    `Račun ${currentQuestion} od ${activeDragon.questions}`;
 }
 
 
-/* =========================
-   RAČUNI
-========================= */
+
+/* =====================================================
+   RAČUNI DO 10
+
+   Vse uporabljene številke
+   in rezultat so med 0 in 10.
+===================================================== */
 
 function createMathProblem() {
 
-  const operation =
-    Math.random() < 0.5
-      ? "+"
-      : "−";
+  const useAddition =
+    Math.random() < 0.5;
+
 
   let a;
+
   let b;
 
+
+
+  /* SEŠTEVANJE DO 10 */
+
   if (
-    operation === "+"
+    useAddition
   ) {
 
     const result =
       randomNumber(
-        6,
-        20
+        2,
+        10
       );
+
 
     a =
       randomNumber(
@@ -1840,85 +3277,107 @@ function createMathProblem() {
         result - 1
       );
 
+
     b =
       result - a;
 
+
     correctAnswer =
       result;
 
-  } else {
+
+    problemElement.textContent =
+
+      `${a} + ${b} = ?`;
+
+  }
+
+
+
+  /* ODŠTEVANJE DO 10 */
+
+  else {
 
     a =
       randomNumber(
-        7,
-        20
+        2,
+        10
       );
 
-    const result =
-      randomNumber(
-        6,
-        a - 1
-      );
 
     b =
-      a - result;
+      randomNumber(
+        1,
+        a
+      );
+
 
     correctAnswer =
-      result;
+      a - b;
+
+
+    problemElement.textContent =
+
+      `${a} − ${b} = ?`;
   }
 
-  problemElement.textContent =
-    `${a} ${operation} ${b} = ?`;
 
   answerInput.value =
     "";
+
 
   feedbackElement.textContent =
     "";
 }
 
 
-function randomNumber(min, max) {
 
-  return Math.floor(
-    Math.random() *
-    (max - min + 1)
-  ) + min;
-}
-
-
-/* =========================
+/* =====================================================
    PREVERI ODGOVOR
-========================= */
+===================================================== */
 
 function checkAnswer() {
 
   if (
     !activeDragon
   ) {
+
     return;
   }
 
+
+  const rawAnswer =
+    answerInput.value.trim();
+
+
   if (
-    answerInput.value.trim() === ""
+    rawAnswer === ""
   ) {
 
     feedbackElement.textContent =
-      "Najprej vpiši odgovor.";
+      "Vpiši odgovor.";
+
+    answerInput.focus();
 
     return;
   }
 
+
   const answer =
     Number(
-      answerInput.value
+      rawAnswer
     );
+
 
   if (
     answer === correctAnswer
   ) {
 
     activeDragon.remaining--;
+
+
+
+    /* ŠE NI PREMAGAN */
 
     if (
       activeDragon.remaining > 0
@@ -1927,69 +3386,168 @@ function checkAnswer() {
       feedbackElement.textContent =
         "✅ Pravilno! Še en račun.";
 
+
       setTimeout(
+
         () => {
 
-          showDragon();
+          showDragonChallenge();
 
           createMathProblem();
 
           answerInput.focus();
 
         },
-        600
+
+        650
+
       );
 
-    } else {
 
-      const defeated =
-        activeDragon;
-
-      feedbackElement.textContent =
-        "🎉 Zmaj je premagan!";
-
-      setTimeout(
-        () => {
-
-          dragons =
-            dragons.filter(
-              d => d !== defeated
-            );
-
-          activeDragon =
-            null;
-
-          overlay.classList.remove(
-            "visible"
-          );
-
-          messageElement.textContent =
-            "⚔️ Nadaljuj proti gradu!";
-
-          drawMaze();
-
-        },
-        700
-      );
+      return;
     }
 
-  } else {
+
+
+    /* ZMAJ JE PREMAGAN */
+
+    const defeatedDragon =
+      activeDragon;
+
 
     feedbackElement.textContent =
-      "❌ Poskusi še enkrat.";
+      "🎉 Odlično! Zmaj je premagan!";
+
+
+    if (
+      defeatedDragon.mandatory
+    ) {
+
+      defeatedMandatoryDragons++;
+
+
+      updateDragonCounter();
+    }
+
+
+    setTimeout(
+
+      () => {
+
+        dragons =
+          dragons.filter(
+
+            dragon =>
+              dragon !==
+              defeatedDragon
+
+          );
+
+
+        /*
+          Ker je otrok prej poskusil
+          stopiti na zmajevo polje,
+          po zmagi vitez stopi tja.
+        */
+
+        if (
+          pendingDragonMove
+        ) {
+
+          player.row =
+            pendingDragonMove.row;
+
+
+          player.col =
+            pendingDragonMove.col;
+        }
+
+
+        activeDragon =
+          null;
+
+
+        pendingDragonMove =
+          null;
+
+
+        overlay.classList.remove(
+          "visible"
+        );
+
+
+        messageElement.textContent =
+          "⚔️ Zmaj je premagan. Nadaljuj proti gradu!";
+
+
+        drawMaze();
+
+
+        answerInput.value =
+          "";
+
+      },
+
+      750
+
+    );
+
+  }
+
+
+
+  /* NAPAČEN ODGOVOR */
+
+  else {
+
+    feedbackElement.textContent =
+      "❌ Ni pravilno. Poskusi še enkrat.";
+
 
     answerInput.select();
   }
 }
 
 
-/* =========================
+
+/* =====================================================
    ZMAGA
-========================= */
+===================================================== */
 
 function winGame() {
 
+  if (
+    gameWon
+  ) {
+
+    return;
+  }
+
+
+  /*
+    Zaradi konstrukcije labirinta
+    je do gradu mogoče priti samo
+    čez vseh 5 obveznih zmajev.
+
+    Dodaten varnostni pregled:
+  */
+
+  if (
+
+    defeatedMandatoryDragons <
+    NUMBER_OF_MANDATORY_DRAGONS
+
+  ) {
+
+    messageElement.textContent =
+      "🐉 Preden prideš domov, moraš premagati vseh 5 zmajev!";
+
+    return;
+  }
+
+
   gameWon = true;
+
 
   if (
     fireTimer
@@ -1999,62 +3557,90 @@ function winGame() {
       fireTimer
     );
 
-    fireTimer = null;
+
+    fireTimer =
+      null;
   }
 
-
-  /* LABIRINT IN NAVODILA IZGINEJO */
 
   mazeElement.style.display =
     "none";
 
+
   controlsElement.style.display =
     "none";
+
 
   fireStatus.style.display =
     "none";
 
+
+  dragonCounterElement.style.display =
+    "none";
+
+
   instructionsElement.style.display =
     "none";
+
 
   titleElement.style.display =
     "none";
 
-
-  /* KONČNI PRIZOR */
 
   messageElement.innerHTML = `
 
     <div id="victoryScreen">
 
       <div class="victory-stars">
+
         ✨ ⭐ ✨ ⭐ ✨
+
       </div>
 
+
       <div class="victory-title">
+
         🎉 ZMAGA! 🎉
+
       </div>
+
 
       <div class="victory-scene">
 
+
         <div class="big-castle">
+
           🏰
+
         </div>
 
-        <img
-          src="VITEZ.png"
-          class="victory-knight"
-          alt="Vitez praznuje zmago"
+
+        <div
+          class="knight-sprite-wrap"
+          aria-label="Vitez praznuje zmago"
         >
 
+          <div
+            class="knight-sprite"
+          ></div>
+
+        </div>
+
+
       </div>
+
 
       <div class="home-message">
+
         SREČNO SI PRIŠEL DOMOV!
+
       </div>
 
+
       <div class="victory-stars bottom-stars">
+
         ⭐ ✨ ⭐ ✨ ⭐
+
       </div>
 
     </div>
@@ -2065,74 +3651,160 @@ function winGame() {
   restartButton.textContent =
     "🔄 IGRAJ ZNOVA";
 
+
   restartButton.style.fontSize =
-    "1.3rem";
+    "1.25rem";
+
 
   restartButton.style.padding =
-    "15px 30px";
+    "14px 28px";
 }
 
 
-/* =========================
+
+/* =====================================================
    NOVA IGRA
-========================= */
+===================================================== */
 
 function newGame() {
 
-  gameWon = false;
+  gameWon =
+    false;
 
-  activeDragon = null;
+
+  activeDragon =
+    null;
+
+
+  pendingDragonMove =
+    null;
+
+
+  correctAnswer =
+    null;
+
+
+  defeatedMandatoryDragons =
+    0;
+
+
+  player = {
+
+    row:
+      START.row,
+
+    col:
+      START.col
+  };
+
 
   overlay.classList.remove(
     "visible"
   );
 
+
   mazeElement.style.display =
     "grid";
+
 
   controlsElement.style.display =
     "block";
 
+
   fireStatus.style.display =
     "block";
+
+
+  dragonCounterElement.style.display =
+    "block";
+
 
   instructionsElement.style.display =
     "block";
 
+
   titleElement.style.display =
     "block";
+
 
   restartButton.textContent =
     "🔄 Nov labirint";
 
+
   restartButton.style.fontSize =
     "";
 
+
   restartButton.style.padding =
-    "10px 18px";
+    "11px 20px";
 
-  generateMaze();
 
-  placeDragons();
+  /*
+    1. osnovni labirint
+  */
+
+  generatePerfectMaze();
+
+
+  /*
+    2. 5 obveznih zmajev
+  */
+
+  placeMandatoryDragons();
+
+
+  /*
+    3. kompleksne dodatne povezave,
+       vendar brez možnosti obvoza
+       obveznih zmajev
+  */
+
+  addSafeExtraOpenings();
+
+
+  /*
+    4. slepe poti
+  */
+
+  addDeadEnds();
+
+
+  /*
+    5. ogenj
+  */
 
   placeFires();
 
+
+  updateDragonCounter();
+
+
   startFireTimer();
 
+
   drawMaze();
+
 
   messageElement.textContent =
     "Poišči pot do gradu.";
 }
 
 
-/* =========================
+
+/* =====================================================
    TIPKOVNICA
-========================= */
+===================================================== */
 
 document.addEventListener(
+
   "keydown",
+
   event => {
+
+
+    /*
+      Med računom deluje samo Enter.
+    */
 
     if (
       activeDragon
@@ -2141,112 +3813,143 @@ document.addEventListener(
       if (
         event.key === "Enter"
       ) {
+
+        event.preventDefault();
+
         checkAnswer();
       }
 
+
       return;
     }
+
+
 
     if (
       event.key === "ArrowUp"
     ) {
 
       event.preventDefault();
-      movePlayer("up");
+
+      movePlayer(
+        "up"
+      );
     }
+
 
     if (
       event.key === "ArrowDown"
     ) {
 
       event.preventDefault();
-      movePlayer("down");
+
+      movePlayer(
+        "down"
+      );
     }
+
 
     if (
       event.key === "ArrowLeft"
     ) {
 
       event.preventDefault();
-      movePlayer("left");
+
+      movePlayer(
+        "left"
+      );
     }
+
 
     if (
       event.key === "ArrowRight"
     ) {
 
       event.preventDefault();
-      movePlayer("right");
+
+      movePlayer(
+        "right"
+      );
     }
 
-    if (
-      event.code === "Space"
-    ) {
-
-      event.preventDefault();
-      attackDragon();
-    }
   }
+
 );
 
 
-/* =========================
-   GUMBI
-========================= */
+
+/* =====================================================
+   PUŠČICE NA EKRANU
+===================================================== */
 
 document
   .querySelectorAll(
     ".move-button"
   )
   .forEach(
+
     button => {
 
       button.addEventListener(
+
         "click",
+
         () => {
 
           movePlayer(
+
             button.dataset.direction
+
           );
         }
+
       );
     }
+
   );
 
 
-document
-  .getElementById(
-    "attackButton"
-  )
-  .addEventListener(
-    "click",
-    attackDragon
-  );
 
+/* =====================================================
+   PREVERI RAČUN
+===================================================== */
 
 document
   .getElementById(
     "submitAnswer"
   )
   .addEventListener(
+
     "click",
+
     checkAnswer
+
   );
 
 
+
+/* =====================================================
+   NOVA IGRA
+===================================================== */
+
 restartButton.addEventListener(
+
   "click",
+
   newGame
+
 );
 
 
-/* =========================
-   ZAČNI IGRO
-========================= */
+
+/* =====================================================
+   ZAČNI
+===================================================== */
 
 newGame();
 
 </script>
 
 </body>
+
 </html>
