@@ -32,7 +32,7 @@
     }
 
     .arrow-help {
-      font-size: 1.6rem;
+      font-size: 1.7rem;
       font-weight: bold;
       margin: 8px 0;
     }
@@ -239,6 +239,28 @@
       font-size: 1.05rem;
     }
 
+    #victoryScreen {
+      margin-top: 30px;
+      padding: 30px;
+    }
+
+    #victoryCastle {
+      font-size: 130px;
+      line-height: 1;
+      margin-bottom: 10px;
+    }
+
+    #victoryTitle {
+      font-size: 2.7rem;
+      margin: 10px 0;
+    }
+
+    #victoryText {
+      font-size: 1.7rem;
+      font-weight: bold;
+      margin-top: 10px;
+    }
+
     @media (max-width: 850px) {
       .cell {
         width: 27px;
@@ -413,9 +435,14 @@ const answerInput =
 const feedbackElement =
   document.getElementById("feedback");
 
+const controlsElement =
+  document.querySelector(".controls");
+
+const restartButton =
+  document.getElementById("restart");
+
 
 function shuffle(array) {
-
   for (
     let i = array.length - 1;
     i > 0;
@@ -436,7 +463,7 @@ function shuffle(array) {
 
 
 /* ================================
-   BOLJ KOMPLEKSEN LABIRINT
+   LABIRINT
 ================================ */
 
 function generateMaze() {
@@ -495,10 +522,7 @@ function generateMaze() {
   carve(1, 1);
 
 
-  /*
-    Dodatne povezave med hodniki:
-    nastanejo križišča in zanke.
-  */
+  /* dodatne povezave */
 
   const EXTRA_OPENINGS = 28;
 
@@ -554,9 +578,7 @@ function generateMaze() {
   }
 
 
-  /*
-    Dodatne slepe poti.
-  */
+  /* dodatne slepe poti */
 
   const EXTRA_DEAD_ENDS = 16;
 
@@ -616,6 +638,7 @@ function generateMaze() {
     }
   }
 
+
   player = {
     row: 1,
     col: 1
@@ -631,7 +654,7 @@ function generateMaze() {
 
 
 /* ================================
-   NAJDI POT
+   NAJDI POT DO GRADU
 ================================ */
 
 function findPathToCastle() {
@@ -767,7 +790,9 @@ function placeDragons() {
 
       if (
         !position
-      ) return;
+      ) {
+        return;
+      }
 
       dragons.push({
         row: position.row,
@@ -879,8 +904,7 @@ function startFireTimer() {
     );
   }
 
-  fireIsOn =
-    true;
+  fireIsOn = true;
 
   updateFireStatus();
 
@@ -1402,8 +1426,7 @@ function attackDragon() {
 
 function showDragon() {
 
-  let size =
-    36;
+  let size = 36;
 
   if (
     activeDragon.type ===
@@ -1613,11 +1636,63 @@ function checkAnswer() {
 
 function winGame() {
 
-  gameWon =
-    true;
+  gameWon = true;
 
-  messageElement.textContent =
-    "🏰 Bravo! Prišel si do gradu! 🎉";
+  if (
+    fireTimer
+  ) {
+    clearInterval(
+      fireTimer
+    );
+  }
+
+  mazeElement.style.display =
+    "none";
+
+  controlsElement.style.display =
+    "none";
+
+  fireStatus.style.display =
+    "none";
+
+  const oldVictory =
+    document.getElementById(
+      "victoryScreen"
+    );
+
+  if (
+    oldVictory
+  ) {
+    oldVictory.remove();
+  }
+
+  messageElement.innerHTML =
+    `
+      <div id="victoryScreen">
+
+        <div id="victoryCastle">
+          🏰
+        </div>
+
+        <div id="victoryTitle">
+          🎉 ZMAGA! 🎉
+        </div>
+
+        <div id="victoryText">
+          Varno si prišel domov!
+        </div>
+
+      </div>
+    `;
+
+  restartButton.textContent =
+    "🔄 Igraj znova";
+
+  restartButton.style.fontSize =
+    "1.15rem";
+
+  restartButton.style.padding =
+    "14px 24px";
 }
 
 
@@ -1636,6 +1711,25 @@ function newGame() {
   overlay.classList.remove(
     "visible"
   );
+
+  mazeElement.style.display =
+    "grid";
+
+  controlsElement.style.display =
+    "block";
+
+  fireStatus.style.display =
+    "block";
+
+  restartButton.textContent =
+    "🔄 Nov labirint";
+
+  restartButton.style.fontSize =
+    "";
+
+  restartButton.style.padding =
+    "10px 18px";
+
 
   generateMaze();
 
@@ -1755,10 +1849,7 @@ document
   );
 
 
-document
-  .getElementById(
-    "restart"
-  )
+restartButton
   .addEventListener(
     "click",
     newGame
